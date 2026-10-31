@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FinTrack – Personal Finance Tracker</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Custom Tailwind Config -->
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              navy: {
+                50: "#f0f4ff",
+                100: "#dbe4ff",
+                500: "#1e3a5f",
+                600: "#162e4d",
+                700: "#0f2238",
+                800: "#091829",
+              },
+              accent: {
+                400: "#34d399",
+                500: "#10b981",
+                600: "#059669",
+              },
+            },
+            fontFamily: {
+              sans: ["Inter", "system-ui", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="bg-gray-50 font-sans text-gray-800 min-h-screen flex flex-col">
+    <!-- ========== TOAST NOTIFICATION ========== -->
+    <div
+      id="toast-container"
+      class="fixed top-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none"
+    ></div>
+
+    <!-- ========== NAVBAR ========== -->
+    <header class="bg-navy-500 shadow-lg sticky top-0 z-50">
+      <nav
+        class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between"
+      >
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-2 group">
+          <div
+            class="w-8 h-8 bg-accent-500 rounded-lg flex items-center justify-center shadow-md group-hover:bg-accent-400 transition-colors duration-200"
+          >
+            <svg
+              class="w-5 h-5 text-white"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </div>
+          <span class="text-white text-xl font-bold tracking-tight"
+            >Fin<span class="text-accent-400">Track</span></span
+          >
+        </a>
+
+        <!-- Navigation Links -->
+        <div class="flex items-center gap-1">
+          <a
+            href="#dashboard"
+            class="nav-link text-gray-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          >
+            Dashboard
+          </a>
+          <a
+            href="#transactions"
+            class="nav-link text-gray-300 hover:text-white hover:bg-white/10 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200"
+          >
+            Transactions
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <!-- ========== MAIN CONTENT ========== -->
+    <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Welcome Section -->
+      <section id="dashboard" class="mb-8">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
+        >
+          <div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">
+              Financial Overview
+            </h1>
+            <p class="text-gray-500 mt-1 text-sm sm:text-base">
+              Track your income and expenses in one place.
+            </p>
+          </div>
+          <div class="text-sm text-gray-400" id="current-date"></div>
+        </div>
+      </section>
+
+      <!-- Summary Cards -->
+      <section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+        <!-- Total Balance -->
+        <div
+          class="summary-card bg-navy-500 rounded-2xl p-5 shadow-md text-white"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-medium text-gray-300">Total Balance</span>
+            <div
+              class="w-9 h-9 bg-white/10 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-white"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+                />
+              </svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold" id="total-balance">Rp 0</p>
+          <p class="text-xs text-gray-400 mt-1">Current balance</p>
+        </div>
+
+        <!-- Total Income -->
+        <div
+          class="summary-card bg-white rounded-2xl p-5 shadow-md border border-gray-100"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-medium text-gray-500">Total Income</span>
+            <div
+              class="w-9 h-9 bg-accent-500/10 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-accent-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M7 11l5-5m0 0l5 5m-5-5v12"
+                />
+              </svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-accent-600" id="total-income">
+            Rp 0
+          </p>
+          <p class="text-xs text-gray-400 mt-1">Total income</p>
+        </div>
+
+        <!-- Total Expense -->
+        <div
+          class="summary-card bg-white rounded-2xl p-5 shadow-md border border-gray-100"
+        >
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-medium text-gray-500">Total Expense</span>
+            <div
+              class="w-9 h-9 bg-red-50 rounded-xl flex items-center justify-center"
+            >
+              <svg
+                class="w-5 h-5 text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 13l-5 5m0 0l-5-5m5 5V6"
+                />
+              </svg>
+            </div>
+          </div>
+          <p class="text-2xl font-bold text-red-500" id="total-expense">Rp 0</p>
+          <p class="text-xs text-gray-400 mt-1">Total expense</p>
+        </div>
+      </section>
+
+      <!-- ========== CATEGORY BREAKDOWN CHART ========== -->
+      <section
+        id="chart-section"
+        class="bg-white rounded-2xl shadow-md border border-gray-100 p-5 mb-8 hidden"
+      >
+        <div class="flex items-center justify-between mb-4">
+          <div>
+            <h2 class="text-base font-semibold text-gray-900">
+              Expense by Category
+            </h2>
+            <p class="text-xs text-gray-400 mt-0.5">Top spending categories</p>
+          </div>
+          <span
+            class="text-xs text-gray-400 font-medium"
+            id="chart-period-label"
+          ></span>
+        </div>
+        <!-- Bar chart rendered by JS -->
+        <div id="category-chart" class="space-y-2.5"></div>
+      </section>
+
+      <!-- Transaction Section -->
+      <section
+        id="transactions"
+        class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden"
+      >
+        <!-- Section Header -->
+        <div
+          class="px-5 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+        >
+          <div class="flex items-center gap-3">
+            <h2 class="text-lg font-semibold text-gray-900">Transactions</h2>
+            <!-- Transaction count badge -->
+            <span
+              id="tx-count-badge"
+              class="hidden text-xs font-semibold bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full"
+            ></span>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <!-- Export CSV button -->
+            <button
+              id="btn-export-csv"
+              class="flex items-center gap-1.5 border border-gray-200 hover:bg-gray-50 text-gray-600 text-sm font-medium px-3 py-2 rounded-xl transition-colors duration-200"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              Export CSV
+            </button>
+            <!-- Add Transaction button -->
+            <button
+              id="btn-add-transaction"
+              class="flex items-center gap-2 bg-accent-500 hover:bg-accent-600 text-white text-sm font-medium px-4 py-2 rounded-xl transition-colors duration-200 shadow-sm"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              Add Transaction
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter, Sort & Search Bar -->
+        <div class="px-5 py-3 border-b border-gray-100 flex flex-col gap-3">
+          <!-- Row 1: Filter type + Sort + Search -->
+          <div class="flex flex-col sm:flex-row gap-3">
+            <!-- Filter Buttons -->
+            <div
+              class="flex items-center gap-2"
+              role="group"
+              aria-label="Filter transactions"
+            >
+              <button
+                class="filter-btn active-filter text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200"
+                data-filter="all"
+              >
+                All <span class="filter-count" id="count-all"></span>
+              </button>
+              <button
+                class="filter-btn text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200"
+                data-filter="income"
+              >
+                Income <span class="filter-count" id="count-income"></span>
+              </button>
+              <button
+                class="filter-btn text-sm font-medium px-3 py-1.5 rounded-lg transition-all duration-200"
+                data-filter="expense"
+              >
+                Expense <span class="filter-count" id="count-expense"></span>
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2 sm:ml-auto">
+              <!-- Sort Control -->
+              <select
+                id="sort-select"
+                class="text-sm border border-gray-200 rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500 text-gray-600 bg-white cursor-pointer"
+              >
+                <option value="date-desc">Date ↓ Newest</option>
+                <option value="date-asc">Date ↑ Oldest</option>
+                <option value="amount-desc">Amount ↓ High</option>
+                <option value="amount-asc">Amount ↑ Low</option>
+                <option value="name-asc">Name A–Z</option>
+                <option value="name-desc">Name Z–A</option>
+              </select>
+
+              <!-- Search Input -->
+              <div class="relative">
+                <svg
+                  class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"
+                  />
+                </svg>
+                <input
+                  id="search-input"
+                  type="text"
+                  placeholder="Search..."
+                  class="pl-9 pr-4 py-1.5 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500 transition-all duration-200 w-36 sm:w-48"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Date Range Filter -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-gray-500 font-medium">Period:</span>
+            <div class="flex items-center gap-1 flex-wrap">
+              <button
+                class="period-btn active-period text-xs font-medium px-2.5 py-1 rounded-lg transition-all duration-200"
+                data-period="all"
+              >
+                All Time
+              </button>
+              <button
+                class="period-btn text-xs font-medium px-2.5 py-1 rounded-lg transition-all duration-200"
+                data-period="this-month"
+              >
+                This Month
+              </button>
+              <button
+                class="period-btn text-xs font-medium px-2.5 py-1 rounded-lg transition-all duration-200"
+                data-period="last-month"
+              >
+                Last Month
+              </button>
+              <button
+                class="period-btn text-xs font-medium px-2.5 py-1 rounded-lg transition-all duration-200"
+                data-period="this-year"
+              >
+                This Year
+              </button>
+              <button
+                class="period-btn text-xs font-medium px-2.5 py-1 rounded-lg transition-all duration-200"
+                data-period="custom"
+              >
+                Custom
+              </button>
+            </div>
+            <!-- Custom Date Range (hidden by default) -->
+            <div id="custom-range" class="hidden flex items-center gap-2 ml-1">
+              <input
+                id="range-from"
+                type="date"
+                class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500"
+              />
+              <span class="text-xs text-gray-400">–</span>
+              <input
+                id="range-to"
+                type="date"
+                class="text-xs border border-gray-200 rounded-lg px-2 py-1 focus:outline-none focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Transaction List -->
+        <div
+          id="transaction-list"
+          class="divide-y divide-gray-50 min-h-[200px]"
+        >
+          <!-- Transactions rendered by JS -->
+        </div>
+
+        <!-- Empty State -->
+        <div
+          id="empty-state"
+          class="hidden flex-col items-center justify-center py-16 px-4 text-center"
+        >
+          <div
+            class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4"
+          >
+            <svg
+              class="w-8 h-8 text-gray-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414A1 1 0 0120 9.414V19a2 2 0 01-2 2z"
+              />
+            </svg>
+          </div>
+          <p class="text-gray-500 font-medium">No transactions found</p>
+          <p class="text-gray-400 text-sm mt-1">
+            Try adjusting your filters or add a new transaction.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer
+      class="mt-auto py-6 text-center text-sm text-gray-400 border-t border-gray-100 bg-white"
+    >
+      <p>
+        &copy; <span id="footer-year"></span>
+        <span class="font-medium text-gray-500">FinTrack</span>. Personal
+        Finance Tracker. All rights reserved.
+      </p>
+    </footer>
+
+    <!-- ========== MODAL: Add / Edit Transaction ========== -->
+    <div
+      id="modal-overlay"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      <div
+        id="modal-box"
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-md modal-enter"
+      >
+        <!-- Modal Header -->
+        <div
+          class="flex items-center justify-between px-6 py-4 border-b border-gray-100"
+        >
+          <h3 id="modal-title" class="text-lg font-semibold text-gray-900">
+            Add Transaction
+          </h3>
+          <button
+            id="btn-close-modal"
+            aria-label="Close modal"
+            class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors duration-200"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Modal Body -->
+        <form id="transaction-form" novalidate class="px-6 py-5 space-y-4">
+          <input type="hidden" id="edit-id" />
+
+          <!-- Transaction Name -->
+          <div>
+            <label class="form-label" for="input-name"
+              >Transaction Name <span class="text-red-400">*</span></label
+            >
+            <input
+              id="input-name"
+              type="text"
+              placeholder="e.g. Monthly Salary"
+              class="form-input"
+              maxlength="80"
+            />
+            <p class="form-error hidden" id="error-name">
+              Please enter a transaction name.
+            </p>
+          </div>
+
+          <!-- Amount -->
+          <div>
+            <label class="form-label" for="input-amount"
+              >Amount (Rp) <span class="text-red-400">*</span></label
+            >
+            <input
+              id="input-amount"
+              type="number"
+              placeholder="e.g. 5000000"
+              min="1"
+              class="form-input"
+            />
+            <p class="form-error hidden" id="error-amount">
+              Amount must be a positive number.
+            </p>
+          </div>
+
+          <!-- Category & Type -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="form-label" for="input-category"
+                >Category <span class="text-red-400">*</span></label
+              >
+              <select id="input-category" class="form-input">
+                <option value="">Select...</option>
+                <option value="Salary">Salary</option>
+                <option value="Freelance">Freelance</option>
+                <option value="Investment">Investment</option>
+                <option value="Food & Drink">Food & Drink</option>
+                <option value="Transport">Transport</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Bills">Bills</option>
+                <option value="Health">Health</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Education">Education</option>
+                <option value="Other">Other</option>
+              </select>
+              <p class="form-error hidden" id="error-category">
+                Please select a category.
+              </p>
+            </div>
+
+            <div>
+              <label class="form-label" for="input-type"
+                >Type <span class="text-red-400">*</span></label
+              >
+              <select id="input-type" class="form-input">
+                <option value="">Select...</option>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+              <p class="form-error hidden" id="error-type">
+                Please select a type.
+              </p>
+            </div>
+          </div>
+
+          <!-- Date -->
+          <div>
+            <label class="form-label" for="input-date"
+              >Date <span class="text-red-400">*</span></label
+            >
+            <input id="input-date" type="date" class="form-input" />
+            <p class="form-error hidden" id="error-date">
+              Please select a date.
+            </p>
+          </div>
+
+          <!-- Notes (optional) -->
+          <div>
+            <label class="form-label" for="input-notes">
+              Notes
+              <span class="text-gray-400 font-normal text-xs ml-1"
+                >(optional)</span
+              >
+            </label>
+            <textarea
+              id="input-notes"
+              rows="2"
+              placeholder="Add a short note..."
+              class="form-input resize-none"
+              maxlength="200"
+            ></textarea>
+          </div>
+
+          <!-- Submit Buttons -->
+          <div class="pt-2 flex gap-3">
+            <button
+              type="button"
+              id="btn-cancel-form"
+              class="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-600 font-medium py-2.5 rounded-xl transition-colors duration-200 text-sm"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="flex-1 bg-accent-500 hover:bg-accent-600 text-white font-medium py-2.5 rounded-xl transition-colors duration-200 text-sm shadow-sm"
+            >
+              Save Transaction
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========== MODAL: Delete Confirmation ========== -->
+    <div
+      id="confirm-overlay"
+      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirm-title"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 modal-enter"
+      >
+        <div class="flex items-center gap-3 mb-4">
+          <div
+            class="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center flex-shrink-0"
+          >
+            <svg
+              class="w-5 h-5 text-red-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 id="confirm-title" class="font-semibold text-gray-900">
+              Delete Transaction
+            </h3>
+            <p class="text-sm text-gray-500 mt-0.5">
+              This action cannot be undone.
+            </p>
+          </div>
+        </div>
+        <p class="text-sm text-gray-600 mb-5">
+          Are you sure you want to delete
+          <strong id="confirm-name" class="text-gray-800"></strong>?
+        </p>
+        <div class="flex gap-3">
+          <button
+            id="btn-cancel-delete"
+            class="flex-1 border border-gray-200 hover:bg-gray-50 text-gray-600 font-medium py-2.5 rounded-xl transition-colors duration-200 text-sm"
+          >
+            Cancel
+          </button>
+          <button
+            id="btn-confirm-delete"
+            class="flex-1 bg-red-500 hover:bg-red-600 text-white font-medium py-2.5 rounded-xl transition-colors duration-200 text-sm shadow-sm"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="script.js"></script>
+  </body>
+</html>
